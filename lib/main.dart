@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:whatsapp_clone/home.dart';
+// import 'package:whatsapp_clone/home.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:whatsapp_clone/views/login.dart';
 import 'firebase_options.dart';
 
 void main() async {
@@ -10,8 +11,12 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-  runApp(const MaterialApp(
-    home: Home(),
+  runApp(MaterialApp(
+    home: const Login(),
+    theme: ThemeData(
+      primaryColor: const Color(0xff075e54),
+      colorScheme: ColorScheme.fromSwatch().copyWith(secondary: const Color(0xff25D366)),
+    ),
     debugShowCheckedModeBanner: false,
   ));
 }
