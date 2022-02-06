@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
-
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/services.dart';
+import 'package:whatsapp_clone/model/usuario.dart';
 class Cadastro extends StatefulWidget {
   const Cadastro({Key? key}) : super(key: key);
 
@@ -17,7 +21,44 @@ class _CadastroState extends State<Cadastro> {
 
   var _iconVisible = true;
 
-  _cadastrarUsuario(){
+  Future<void> _cadastrarUsuario(Usuario usuario) async {
+
+
+    FirebaseAuth auth = FirebaseAuth.instance;
+
+    try {
+      UserCredential userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
+          email: usuario.email,
+          password: usuario.senha
+      );
+
+      if( userCredential.user!= null){
+        setState(() {
+          _mensagemErro = "Usuario registrado com sucesso";
+        });
+      };
+
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'weak-password') {
+        setState(() {
+          _mensagemErro = "Senha inválida";
+        });
+      } else if (e.code == 'email-already-in-use') {
+        setState(() {
+          _mensagemErro = "Usuário já possui cadastro ativo";
+        });
+      }
+    } catch (e) {
+      print(e);
+    }
+
+
+    // CollectionReference users = FirebaseFirestore.instance.collection('usuarios');
+    //
+    //   return users
+    //       .add(usuario)
+    //       .then((value) => print("User Added"))
+    //       .catchError((error) => print("Failed to add user: $error"));
 
   }
 
@@ -32,16 +73,22 @@ class _CadastroState extends State<Cadastro> {
         _mensagemErro = "Insira um email";
       });
     }
-    else if(_controllerSenha.text.isEmpty){
+    else if(_controllerSenha.text.length<6){
       setState(() {
-        _mensagemErro = "Insira a senha";
+        _mensagemErro = "Senha inválida, insira pelo menos 6 dígitos";
       });
     }else{
       setState(() {
         _mensagemErro = "";
       });
 
-      _cadastrarUsuario();
+      Usuario novoUsuario =
+      Usuario(
+          _controllerNome.text,
+          _controllerEmail.text,
+          _controllerSenha.text);
+
+      _cadastrarUsuario(novoUsuario);
 
     }
 
@@ -137,7 +184,7 @@ class _CadastroState extends State<Cadastro> {
                   ),
 
                   Center(child: Text(
-                    _mensagemErro,
+                    _mensagemErro, textAlign: TextAlign.center,
                     style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.red))),
 
                 ],
