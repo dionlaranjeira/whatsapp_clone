@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:whatsapp_clone/views/cadastro.dart';
 
 class Login extends StatefulWidget {
   const Login({Key? key}) : super(key: key);
@@ -77,7 +78,9 @@ class _LoginState extends State<Login> {
 
                     ),textAlign: TextAlign.center,
                   ),
-                  onTap: (){},
+                  onTap: (){
+                    Navigator.push(context, MaterialPageRoute(builder: (context)=>Cadastro()));
+                  },
                 ),
 
               ],
