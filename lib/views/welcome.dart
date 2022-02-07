@@ -17,12 +17,12 @@ class _WelcomeState extends State<Welcome> {
 
     if (currentUser != null) {
       Future.delayed(const Duration(seconds: 3)).then((value) {
-      Navigator.push(context, MaterialPageRoute(builder: (context)=>const Home()));
+      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>const Home()));
       });
 
     }else{
       Future.delayed(const Duration(seconds: 3)).then((value) {
-        Navigator.push(context, MaterialPageRoute(builder: (context)=>const Login()));
+        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>const Login()));
       });
     }
   }

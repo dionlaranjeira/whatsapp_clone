@@ -32,7 +32,7 @@ class _CadastroState extends State<Cadastro> {
         CollectionReference users = FirebaseFirestore.instance.collection('usuarios');
 
           return users.doc(userCredential.user?.uid).set(usuario.toMap())
-              .then((_) {Navigator.push(context, MaterialPageRoute(builder: (context)=> const Home()));} )
+              .then((_) {Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=> const Home()));} )
               .catchError((_){
             setState(() {
               _mensagemErro = "Erro ao cadastrar o usuário. Entre em contato com o desenvolvedor.";

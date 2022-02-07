@@ -5,7 +5,6 @@ class Usuario{
   String _senha;
 
   Usuario(this._nome, this._email, this._senha);
-
   Map toMap(){
     Map<String, dynamic> map = {
       "nome": _nome,

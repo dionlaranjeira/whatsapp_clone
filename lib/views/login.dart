@@ -64,7 +64,7 @@ class _LoginState extends State<Login> {
     var currentUser = await FirebaseAuth.instance.currentUser;
 
     if (currentUser != null) {
-      Navigator.push(context, MaterialPageRoute(builder: (context)=>const Home()));
+      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>const Home()));
     }
   }
 
