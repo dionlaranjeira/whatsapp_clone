@@ -12,8 +12,8 @@ class Login extends StatefulWidget {
 class _LoginState extends State<Login> {
 
 
-  TextEditingController _controllerEmail = TextEditingController();
-  TextEditingController _controllerSenha = TextEditingController();
+  final TextEditingController _controllerEmail = TextEditingController();
+  final TextEditingController _controllerSenha = TextEditingController();
 
   var _iconVisible = true;
 
@@ -38,7 +38,7 @@ class _LoginState extends State<Login> {
   _login() async {
 
     try {
-      UserCredential userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(
+      await FirebaseAuth.instance.signInWithEmailAndPassword(
           email: _controllerEmail.text,
           password: _controllerSenha.text
       );
@@ -60,11 +60,11 @@ class _LoginState extends State<Login> {
 
   }
 
-  _verificaUsuarioLogado() async {
+  Future _verificaUsuarioLogado() async {
     var currentUser = await FirebaseAuth.instance.currentUser;
 
     if (currentUser != null) {
-      Navigator.push(context, MaterialPageRoute(builder: (context)=>Home()));
+      Navigator.push(context, MaterialPageRoute(builder: (context)=>const Home()));
     }
   }
 
@@ -90,7 +90,7 @@ class _LoginState extends State<Login> {
                     child: Image.asset("assets/images/logo.png", width: 200, height: 150,),
                 ),
 
-                Center(child: Text(_mensagemErro, textAlign: TextAlign.center, style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),)),
+                Center(child: Text(_mensagemErro, textAlign: TextAlign.center, style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold),)),
 
                 Padding(padding: const EdgeInsets.only(bottom: 8),
                   child: TextField(
@@ -157,7 +157,7 @@ class _LoginState extends State<Login> {
                     ),textAlign: TextAlign.center,
                   ),
                   onTap: (){
-                    Navigator.push(context, MaterialPageRoute(builder: (context)=>Cadastro()));
+                    Navigator.push(context, MaterialPageRoute(builder: (context)=>const Cadastro()));
                   },
                 ),
 

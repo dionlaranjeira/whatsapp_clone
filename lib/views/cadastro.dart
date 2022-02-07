@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/services.dart';
 import 'package:whatsapp_clone/model/usuario.dart';
+import 'package:whatsapp_clone/views/home.dart';
 class Cadastro extends StatefulWidget {
   const Cadastro({Key? key}) : super(key: key);
 
@@ -13,18 +12,15 @@ class Cadastro extends StatefulWidget {
 
 class _CadastroState extends State<Cadastro> {
 
-  TextEditingController _controllerNome = TextEditingController();
-  TextEditingController _controllerEmail = TextEditingController();
-  TextEditingController _controllerSenha = TextEditingController();
+  final TextEditingController _controllerNome = TextEditingController();
+  final TextEditingController _controllerEmail = TextEditingController();
+  final TextEditingController _controllerSenha = TextEditingController();
 
   var _mensagemErro = "";
 
   var _iconVisible = true;
 
   Future<void> _cadastrarUsuario(Usuario usuario) async {
-
-
-    FirebaseAuth auth = FirebaseAuth.instance;
 
     try {
       UserCredential userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
@@ -33,10 +29,16 @@ class _CadastroState extends State<Cadastro> {
       );
 
       if( userCredential.user!= null){
-        setState(() {
-          _mensagemErro = "Usuario registrado com sucesso";
-        });
-      };
+        CollectionReference users = FirebaseFirestore.instance.collection('usuarios');
+
+          return users.doc(userCredential.user?.uid).set(usuario.toMap())
+              .then((_) {Navigator.push(context, MaterialPageRoute(builder: (context)=> const Home()));} )
+              .catchError((_){
+            setState(() {
+              _mensagemErro = "Erro ao cadastrar o usuário. Entre em contato com o desenvolvedor.";
+            });
+          });
+      }
 
     } on FirebaseAuthException catch (e) {
       if (e.code == 'weak-password') {
@@ -49,16 +51,8 @@ class _CadastroState extends State<Cadastro> {
         });
       }
     } catch (e) {
-      print(e);
+      // print(e);
     }
-
-
-    // CollectionReference users = FirebaseFirestore.instance.collection('usuarios');
-    //
-    //   return users
-    //       .add(usuario)
-    //       .then((value) => print("User Added"))
-    //       .catchError((error) => print("Failed to add user: $error"));
 
   }
 
