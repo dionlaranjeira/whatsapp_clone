@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:whatsapp_clone/views/cadastro.dart';
-
+import 'package:firebase_auth/firebase_auth.dart';
 class Login extends StatefulWidget {
   const Login({Key? key}) : super(key: key);
 
@@ -9,6 +9,60 @@ class Login extends StatefulWidget {
 }
 
 class _LoginState extends State<Login> {
+
+
+  TextEditingController _controllerEmail = TextEditingController();
+  TextEditingController _controllerSenha = TextEditingController();
+
+  var _mensagemErro = "";
+
+  _validarDados() {
+
+    if(_controllerEmail.text.isEmpty){
+      setState(() {
+        _mensagemErro = "Insira o e-mail";
+      });
+    }else if(_controllerSenha.text.isEmpty){
+      setState(() {
+        _mensagemErro = "Insira a senha";
+      });
+    }else{
+      _login();
+    }
+
+  }
+
+  _login() async {
+
+    try {
+      UserCredential userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(
+          email: _controllerEmail.text,
+          password: _controllerSenha.text
+      );
+
+      var currentUser = FirebaseAuth.instance.currentUser;
+
+      if (currentUser != null) {
+        setState(() {
+         _mensagemErro = currentUser.email.toString();
+        });
+      }
+
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'user-not-found') {
+        setState(() {
+          _mensagemErro = "Não existe usuário cadastrado com esse email.";
+        });
+
+      } else if (e.code == 'wrong-password') {
+        setState(() {
+          _mensagemErro = "Senha não confere.";
+        });
+      }
+    }
+
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -25,8 +79,11 @@ class _LoginState extends State<Login> {
                     child: Image.asset("assets/images/logo.png", width: 200, height: 150,),
                 ),
 
+                Center(child: Text(_mensagemErro, textAlign: TextAlign.center, style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),)),
+
                 Padding(padding: const EdgeInsets.only(bottom: 8),
                   child: TextField(
+                    controller: _controllerEmail,
                     autofocus: true,
                     keyboardType: TextInputType.emailAddress,
                     style: const TextStyle(fontSize: 20),
@@ -42,6 +99,7 @@ class _LoginState extends State<Login> {
                 ),
 
                 TextField(
+                  controller: _controllerSenha,
                   autofocus: true,
                   keyboardType: TextInputType.text,
                   style: const TextStyle(fontSize: 20),
@@ -57,7 +115,7 @@ class _LoginState extends State<Login> {
 
                 Padding(padding: const EdgeInsets.only(top: 16, bottom: 32),
                 child: ElevatedButton(
-                  onPressed: (){},
+                  onPressed: _validarDados,
                   child: const Text("Entrar",style: TextStyle(color: Colors.white, fontSize: 20),),
                   style: ElevatedButton.styleFrom(
                     primary: Colors.green,
