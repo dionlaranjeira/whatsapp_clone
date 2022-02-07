@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:whatsapp_clone/home.dart';
+import 'package:whatsapp_clone/views/home.dart';
 import 'package:whatsapp_clone/views/cadastro.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 class Login extends StatefulWidget {
