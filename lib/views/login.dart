@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:whatsapp_clone/home.dart';
 import 'package:whatsapp_clone/views/cadastro.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 class Login extends StatefulWidget {
@@ -13,6 +14,8 @@ class _LoginState extends State<Login> {
 
   TextEditingController _controllerEmail = TextEditingController();
   TextEditingController _controllerSenha = TextEditingController();
+
+  var _iconVisible = true;
 
   var _mensagemErro = "";
 
@@ -40,13 +43,7 @@ class _LoginState extends State<Login> {
           password: _controllerSenha.text
       );
 
-      var currentUser = FirebaseAuth.instance.currentUser;
-
-      if (currentUser != null) {
-        setState(() {
-         _mensagemErro = currentUser.email.toString();
-        });
-      }
+      _verificaUsuarioLogado();
 
     } on FirebaseAuthException catch (e) {
       if (e.code == 'user-not-found') {
@@ -61,6 +58,20 @@ class _LoginState extends State<Login> {
       }
     }
 
+  }
+
+  _verificaUsuarioLogado() async {
+    var currentUser = await FirebaseAuth.instance.currentUser;
+
+    if (currentUser != null) {
+      Navigator.push(context, MaterialPageRoute(builder: (context)=>Home()));
+    }
+  }
+
+  @override
+  void initState() {
+    _verificaUsuarioLogado();
+    super.initState();
   }
 
   @override
@@ -103,13 +114,22 @@ class _LoginState extends State<Login> {
                   autofocus: true,
                   keyboardType: TextInputType.text,
                   style: const TextStyle(fontSize: 20),
+                  obscureText: _iconVisible,
                   decoration: InputDecoration(
                     contentPadding: const EdgeInsets.fromLTRB(32, 16, 32, 16),
                     hintText: "Senha",
                     filled: true,
                     fillColor: Colors.white,
                     border: OutlineInputBorder(borderRadius: BorderRadius.circular(32)),
-
+                    suffixIcon: IconButton(
+                      icon: Icon(_iconVisible? Icons.visibility: Icons.visibility_off),
+                      color: Colors.grey,
+                      onPressed: (){
+                        setState(() {
+                          _iconVisible = !_iconVisible;
+                        });
+                      },
+                    ),
                   ),
                 ),
 

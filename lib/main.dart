@@ -12,12 +12,12 @@ void main() async {
   );
 
   runApp(MaterialApp(
-    home: const Login(),
+    debugShowCheckedModeBanner: false,
+    home: Login(),
     theme: ThemeData(
       primaryColor: const Color(0xff075e54),
       colorScheme: ColorScheme.fromSwatch().copyWith(secondary: const Color(0xff25D366)),
     ),
-    debugShowCheckedModeBanner: false,
   ));
 }
 
