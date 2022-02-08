@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:whatsapp_clone/configuracoes.dart';
 import 'package:whatsapp_clone/views/contatos.dart';
 import 'package:whatsapp_clone/views/conversas.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -25,7 +26,7 @@ class _HomeState extends State<Home>with SingleTickerProviderStateMixin {
   _escolhaMenuItem(String itemEscolhido){
     switch(itemEscolhido){
       case "Configurações":
-        print("Configurações");
+        Navigator.push(context, MaterialPageRoute(builder: (context)=> Configuracoes()));
         break;
       case "Deslogar":
         _deslogarUsuario();
