@@ -17,7 +17,7 @@ class _ConfiguracoesState extends State<Configuracoes> {
   late XFile _imagem;
   late String _idUsuarioLogado;
   bool _subindoImagem = false;
-  late String _urlImagemRecuperada = "";
+  late String _urlImagemRecuperada = "http://www.caer.com.br/ws3/fotoUsuario?username=wilgner.schuertz&width=500";
 
   Future _recuperarImagem(String origemImagem) async {
 
@@ -37,6 +37,7 @@ class _ConfiguracoesState extends State<Configuracoes> {
       _imagem = imagemSelecionada!;
       if( _imagem != null ){
         _subindoImagem = true;
+        print("CAMINHO-->"+ imagemSelecionada.path);
         _uploadImagem(imagemSelecionada.path);
       }
     });
@@ -150,11 +151,7 @@ class _ConfiguracoesState extends State<Configuracoes> {
                 CircleAvatar(
                   radius: 100,
                   backgroundColor: Colors.grey,
-                  backgroundImage:
-                  _urlImagemRecuperada != null
-                      ? NetworkImage(_urlImagemRecuperada)
-                      : null
-                ),
+                  backgroundImage: NetworkImage(_urlImagemRecuperada)),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
