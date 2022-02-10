@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-// import 'package:firebase_storage/firebase_storage.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart' as firebase_core;
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 import 'package:firebase_auth/firebase_auth.dart';
@@ -17,7 +17,8 @@ class _ConfiguracoesState extends State<Configuracoes> {
   late XFile _imagem;
   bool _subindoImagem = false;
   late String _urlImagemRecuperada = "http://www.caer.com.br/ws3/fotoUsuario?username=wilgner.schuertz&width=500";
-
+  String _nomeUsuario = "";
+  late String _idUsuarioLogado;
 
   Future _recuperarImagem(String origemImagem) async {
 
@@ -37,9 +38,11 @@ class _ConfiguracoesState extends State<Configuracoes> {
       _imagem = imagemSelecionada!;
       if( _imagem != null ){
         _subindoImagem = true;
-        _uploadImagem(imagemSelecionada.path);
+        _uploadImagem(_imagem.path);
       }
     });
+
+
 
   }
 
@@ -51,12 +54,57 @@ class _ConfiguracoesState extends State<Configuracoes> {
       await firebase_storage.FirebaseStorage.instance
           .ref('users/perfil/${currentUser?.uid}.jpg')
           .putFile(file);
-
       downloadURLIMGPerfil();
+      _atualizarImagemUsuario();
     }
     on firebase_core.FirebaseException catch (e) {
       // e.g, e.code == 'canceled'
     }
+  }
+
+
+
+  Future<void> _obterDadosUsuario () async {
+    var currentUser = await FirebaseAuth.instance.currentUser;
+    _idUsuarioLogado = currentUser!.uid;
+    var collection = FirebaseFirestore.instance.collection('usuarios');
+    var docSnapshot = await collection.doc(_idUsuarioLogado).get();
+    if (docSnapshot.exists) {
+      Map<String, dynamic>? data = docSnapshot.data();
+      var nome = data?['nome'];
+      if(data?['urlIMGPerfil'] != null){
+        _urlImagemRecuperada = data?['urlIMGPerfil'];
+      }
+      setState(() {
+        _nomeUsuario = nome;
+      });
+    }
+  }
+
+  Future<void> _atualizarImagemUsuario() async {
+    CollectionReference users = FirebaseFirestore.instance.collection('usuarios');
+    var currentUser = await FirebaseAuth.instance.currentUser;
+    return users
+        .doc(currentUser?.uid)
+        .update({'urlIMGPerfil': _urlImagemRecuperada})
+        .then((value) => print("Imagem perfil atualizada"))
+        .catchError((error) => print("Failed to update user: $error"));
+  }
+
+
+
+  Future<void> _atualizarNomeUsuario() async {
+    CollectionReference users = FirebaseFirestore.instance.collection('usuarios');
+    var currentUser = await FirebaseAuth.instance.currentUser;
+    return users
+        .doc(currentUser?.uid)
+        .update({'nome': _controllerNome.text})
+        .then((_){
+          setState(() {
+            _nomeUsuario = _controllerNome.text;
+          });
+    })
+        .catchError((error) => print("Failed to update user: $error"));
   }
 
   Future<void> downloadURLIMGPerfil() async {
@@ -74,7 +122,7 @@ class _ConfiguracoesState extends State<Configuracoes> {
   @override
   void initState() {
     super.initState();
-    downloadURLIMGPerfil();
+    _obterDadosUsuario();
   }
 
   @override
@@ -88,7 +136,15 @@ class _ConfiguracoesState extends State<Configuracoes> {
             child: Column(
               children: <Widget>[
                 _subindoImagem
-                  ? const CircularProgressIndicator()
+                  ? Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Container(child: Column(
+                      children: [
+                        const Padding(padding: EdgeInsets.all(16),child: Text("Carregando imagem"),),
+                        const CircularProgressIndicator(),
+                      ],
+                    )),
+                  )
                   : Container(),
                 CircleAvatar(
                   radius: 100,
@@ -120,7 +176,7 @@ class _ConfiguracoesState extends State<Configuracoes> {
                     style: const TextStyle(fontSize: 20),
                     decoration: InputDecoration(
                         contentPadding: const EdgeInsets.fromLTRB(32, 16, 32, 16),
-                        hintText: "Nome",
+                        hintText: _nomeUsuario ?? "SEM NOME",
                         filled: true,
                         fillColor: Colors.white,
                         border: OutlineInputBorder(
@@ -140,9 +196,7 @@ class _ConfiguracoesState extends State<Configuracoes> {
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(32)),
                       ),
-                      onPressed: () {
-
-                      }
+                      onPressed: _atualizarNomeUsuario
                   ),
                 )
               ],
