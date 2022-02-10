@@ -3,14 +3,15 @@ class Usuario{
   String _nome;
   String _email;
   String _senha;
-  String? _urlIMGperfil;
+  String _urlIMGPerfil;
 
-  Usuario(this._nome, this._email, this._senha);
+  Usuario(this._nome, this._email, this._senha, this._urlIMGPerfil);
 
   Map toMap(){
     Map<String, dynamic> map = {
       "nome": _nome,
       "email": _email,
+      "urlIMGPerfil": _urlIMGPerfil,
     };
     return map;
   }
@@ -31,10 +32,10 @@ class Usuario{
   }
 
 
-  String get urlIMGperfil => _urlIMGperfil!;
+  String get urlIMGperfil => _urlIMGPerfil!;
 
-  set urlIMGperfil(String value) {
-    _urlIMGperfil = value;
+  set urlIMGPerfil(String value) {
+    _urlIMGPerfil = value;
   }
 
   String get email => _email;

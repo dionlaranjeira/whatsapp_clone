@@ -16,7 +16,7 @@ class _ConfiguracoesState extends State<Configuracoes> {
   final TextEditingController _controllerNome = TextEditingController();
   late XFile _imagem;
   bool _subindoImagem = false;
-  late String _urlImagemRecuperada = "http://www.caer.com.br/ws3/fotoUsuario?username=wilgner.schuertz&width=500";
+  String _urlImagemRecuperada = "https://firebasestorage.googleapis.com/v0/b/whatapp-flutter.appspot.com/o/app%2Fuser.png?alt=media&token=a288df1e-378a-46b7-98b0-260200d4103b";
   String _nomeUsuario = "";
   late String _idUsuarioLogado;
 
@@ -72,11 +72,10 @@ class _ConfiguracoesState extends State<Configuracoes> {
     if (docSnapshot.exists) {
       Map<String, dynamic>? data = docSnapshot.data();
       var nome = data?['nome'];
-      if(data?['urlIMGPerfil'] != null){
-        _urlImagemRecuperada = data?['urlIMGPerfil'];
-      }
+      var imgperfil = data?['urlIMGPerfil'];
       setState(() {
         _nomeUsuario = nome;
+        _urlImagemRecuperada = imgperfil;
       });
     }
   }
@@ -87,7 +86,10 @@ class _ConfiguracoesState extends State<Configuracoes> {
     return users
         .doc(currentUser?.uid)
         .update({'urlIMGPerfil': _urlImagemRecuperada})
-        .then((value) => print("Imagem perfil atualizada"))
+        .then((_){
+          print("Imagem perfil atualizada");
+          print("URL-->"+ _urlImagemRecuperada);
+        })
         .catchError((error) => print("Failed to update user: $error"));
   }
 
@@ -149,7 +151,7 @@ class _ConfiguracoesState extends State<Configuracoes> {
                 CircleAvatar(
                   radius: 100,
                   backgroundColor: Colors.grey,
-                  backgroundImage: NetworkImage(_urlImagemRecuperada)),
+                  backgroundImage: NetworkImage(_urlImagemRecuperada!)),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[

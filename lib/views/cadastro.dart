@@ -15,7 +15,7 @@ class _CadastroState extends State<Cadastro> {
   final TextEditingController _controllerNome = TextEditingController();
   final TextEditingController _controllerEmail = TextEditingController();
   final TextEditingController _controllerSenha = TextEditingController();
-
+  late String _urlIMGUser = "https://firebasestorage.googleapis.com/v0/b/whatapp-flutter.appspot.com/o/app%2Fuser.png?alt=media&token=a288df1e-378a-46b7-98b0-260200d4103b";
   var _mensagemErro = "";
 
   var _iconVisible = true;
@@ -76,11 +76,7 @@ class _CadastroState extends State<Cadastro> {
         _mensagemErro = "";
       });
 
-      Usuario novoUsuario =
-      Usuario(
-          _controllerNome.text,
-          _controllerEmail.text,
-          _controllerSenha.text);
+      Usuario novoUsuario = Usuario(_controllerNome.text, _controllerEmail.text, _controllerSenha.text, _urlIMGUser);
 
       _cadastrarUsuario(novoUsuario);
 

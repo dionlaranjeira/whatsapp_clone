@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:whatsapp_clone/model/contato.dart';
 import 'package:whatsapp_clone/model/conversa.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:whatsapp_clone/model/usuario.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 class Contatos extends StatefulWidget {
   const Contatos({Key? key}) : super(key: key);
 
@@ -11,61 +13,28 @@ class Contatos extends StatefulWidget {
 
 class _ContatosState extends State<Contatos> {
 
-  List<Map> contatos = [];
+  List<Contato> contatos = [];
+  late String _urlImagemRecuperada = "https://firebasestorage.googleapis.com/v0/b/whatapp-flutter.appspot.com/o/app%2Fuser.png?alt=media&token=a288df1e-378a-46b7-98b0-260200d4103b";
 
-  List<Conversa> listaConversas = [
-    Conversa(
-        "Viih Tube",
-        "Oi Dion, você está livre hoje? Saudades de você!",
-        "https://rd1.com.br/wp-content/uploads/2021/11/20211114-viihposaex.jpg"
-    ),
-    Conversa(
-        "Paola",
-        "Tá de bobeira? Vamos dá uma volta?",
-        "https://static1.purepeople.com.br/articles/8/31/68/48/@/3577245-paolla-oliveira-exibe-corpo-torneado-em-624x600-2.jpg"
-    ),
-    Conversa(
-        "Camila Angel",
-        "Oi Sumido!",
-        "https://f.i.uol.com.br/fotografia/2021/11/17/1637172668619545bcbc76c_1637172668_3x2_md.jpg"
-    ),
-    Conversa(
-        "Bruna do Ney",
-        "Me bloqueou Dion? pq não me responde",
-        "https://i1.wp.com/d1tr1z57agf4qv.cloudfront.net/wp-content/uploads/2019/11/24145953/Bruna-Marquezine.jpg?w=800&ssl=1"
-    ),
-    Conversa(
-        "Anitta",
-        "Dion, preciso falar com você, me liga.",
-        "https://istoe.com.br/wp-content/uploads/sites/14/2021/09/anitta-1.jpg"
-    ),
-    Conversa(
-        "Marina chata",
-        "Não fala nada pra ninguem Dion",
-        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTPnptGb7YrMTvI39alr0rD_L4tMZw9NVnvAw&usqp=CAU"
-    ),
-  ];
-
-  _recuperaContatos() async{
+  Future<List<Contato>> _recuperaContatos() async{
+    var currentUser = await FirebaseAuth.instance.currentUser;
     await FirebaseFirestore.instance
         .collection('usuarios')
         .get()
         .then((QuerySnapshot querySnapshot) {
       querySnapshot.docs.forEach((doc) {
-        // print(doc["nome"]);
-        Map<String, dynamic> map = {
-          "nome": doc["nome"],
-          "email": doc["email"],
-          // "urlIMGPerfil": doc["urlIMGPerfil"] != null ?doc["urlIMGPerfil"]: null,
-        };
 
-        print(map["nome"]);
-        contatos.add(map);
+        if(doc["email"] != currentUser!.email) {
+          Contato novoContato = Contato(doc["nome"], doc["email"], doc["urlIMGPerfil"]);
+          contatos.add(novoContato);
+        }
+
 
       });
     });
 
-      print(contatos);
+      return contatos;
+
   }
 
 
@@ -74,35 +43,51 @@ class _ContatosState extends State<Contatos> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    _recuperaContatos();
+
 
   }
 
   @override
   Widget build(BuildContext context) {
-    return ListView.builder(
-        itemCount: listaConversas.length,
-        itemBuilder: (context, indice){
-
-          Conversa conversa = listaConversas[indice];
-
-          return ListTile(
-            contentPadding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-            leading: CircleAvatar(
-              maxRadius: 30,
-              backgroundColor: Colors.grey,
-              backgroundImage: NetworkImage( conversa.caminhoFoto ),
-            ),
-            title: Text(
-              conversa.nome,
-              style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16
-              ),
-            ),
-          );
-
-        }
-    );
+    return FutureBuilder <List<Contato>>(
+        future: _recuperaContatos(),
+        builder: (context, snapshot){
+          switch (snapshot.connectionState) {
+            case ConnectionState.none:
+            case ConnectionState.waiting:
+              return Center(
+                child: Column(
+                  children: <Widget>[
+                    Text("Carregando contatos"),
+                    CircularProgressIndicator()
+                  ],
+                ),
+              );
+              break;
+            case ConnectionState.active:
+            case ConnectionState.done:
+              return
+                ListView.builder(
+                  itemCount: snapshot.data!.length,
+                  itemBuilder: (_, indice) {
+                    List<Contato>? listaItens = snapshot.data;
+                    Contato contato = listaItens![indice];
+                    return ListTile(
+                      contentPadding: EdgeInsets.fromLTRB(16, 8, 16, 8),
+                      leading: CircleAvatar(
+                          maxRadius: 30,
+                          backgroundColor: Colors.grey,
+                          backgroundImage:
+                              NetworkImage(contato.fotoPerfil)),
+                      title: Text(
+                        contato.nome,
+                        style:
+                        TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                      ),
+                    );
+                  });
+              break;
+          }
+        });
   }
 }
