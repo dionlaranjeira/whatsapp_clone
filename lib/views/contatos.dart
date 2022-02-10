@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:whatsapp_clone/model/conversa.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:whatsapp_clone/model/usuario.dart';
 class Contatos extends StatefulWidget {
   const Contatos({Key? key}) : super(key: key);
 
@@ -9,6 +11,7 @@ class Contatos extends StatefulWidget {
 
 class _ContatosState extends State<Contatos> {
 
+  List<Map> contatos = [];
 
   List<Conversa> listaConversas = [
     Conversa(
@@ -43,6 +46,37 @@ class _ContatosState extends State<Contatos> {
     ),
   ];
 
+  _recuperaContatos() async{
+    await FirebaseFirestore.instance
+        .collection('usuarios')
+        .get()
+        .then((QuerySnapshot querySnapshot) {
+      querySnapshot.docs.forEach((doc) {
+        // print(doc["nome"]);
+        Map<String, dynamic> map = {
+          "nome": doc["nome"],
+          "email": doc["email"],
+          // "urlIMGPerfil": doc["urlIMGPerfil"] != null ?doc["urlIMGPerfil"]: null,
+        };
+
+        print(map["nome"]);
+        contatos.add(map);
+
+      });
+    });
+
+      print(contatos);
+  }
+
+
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    _recuperaContatos();
+
+  }
 
   @override
   Widget build(BuildContext context) {
