@@ -13,11 +13,11 @@ class Configuracoes extends StatefulWidget {
 
 class _ConfiguracoesState extends State<Configuracoes> {
 
-  TextEditingController _controllerNome = TextEditingController();
+  final TextEditingController _controllerNome = TextEditingController();
   late XFile _imagem;
-  late String _idUsuarioLogado;
   bool _subindoImagem = false;
   late String _urlImagemRecuperada = "http://www.caer.com.br/ws3/fotoUsuario?username=wilgner.schuertz&width=500";
+
 
   Future _recuperarImagem(String origemImagem) async {
 
@@ -37,7 +37,6 @@ class _ConfiguracoesState extends State<Configuracoes> {
       _imagem = imagemSelecionada!;
       if( _imagem != null ){
         _subindoImagem = true;
-        print("CAMINHO-->"+ imagemSelecionada.path);
         _uploadImagem(imagemSelecionada.path);
       }
     });
@@ -45,108 +44,51 @@ class _ConfiguracoesState extends State<Configuracoes> {
   }
 
   Future<void> _uploadImagem(String filePath) async {
+    var currentUser = await FirebaseAuth.instance.currentUser;
     File file = File(filePath);
-
-    print("CAMINHO------>"+ filePath);
 
     try {
       await firebase_storage.FirebaseStorage.instance
-          .ref('uploads/file-to-upload.png')
+          .ref('users/perfil/${currentUser?.uid}.jpg')
           .putFile(file);
-    } on firebase_core.FirebaseException catch (e) {
+
+      downloadURLIMGPerfil();
+    }
+    on firebase_core.FirebaseException catch (e) {
       // e.g, e.code == 'canceled'
-      print("ERRO!!!"+ e.toString());
     }
   }
 
+  Future<void> downloadURLIMGPerfil() async {
+    var currentUser = await FirebaseAuth.instance.currentUser;
+    String downloadURL = await firebase_storage.FirebaseStorage.instance
+        .ref('users/perfil/${currentUser?.uid}.jpg')
+        .getDownloadURL();
 
-  // Future _uploadImagem() async {
-
-    // FirebaseStorage storage = FirebaseStorage.instance;
-    // StorageReference pastaRaiz = storage.ref();
-    // StorageReference arquivo = pastaRaiz
-    //   .child("perfil")
-    //   .child(_idUsuarioLogado + ".jpg");
-    //
-    // //Upload da imagem
-    // StorageUploadTask task = arquivo.putFile(_imagem);
-    //
-    // //Controlar progresso do upload
-    // task.events.listen((StorageTaskEvent storageEvent){
-    //
-    //   if( storageEvent.type == StorageTaskEventType.progress ){
-    //     setState(() {
-    //       _subindoImagem = true;
-    //     });
-    //   }else if( storageEvent.type == StorageTaskEventType.success ){
-    //     setState(() {
-    //       _subindoImagem = false;
-    //     });
-    //   }
-    //
-    // });
-    //
-    // //Recuperar url da imagem
-    // task.onComplete.then((StorageTaskSnapshot snapshot){
-    //   _recuperarUrlImagem(snapshot);
-    // });
-
-  // }
-
-  // Future<void> _recuperarUrlImagem() async {
-  //   String downloadURL = await firebase_storage.FirebaseStorage.instance
-  //       .ref('users/anaclara.jpeg')
-  //       .getDownloadURL();
-  //
-  //   print("teste--->"+downloadURL.toString());
-  //
-  //   setState(() {
-  //     _urlImagemRecuperada = downloadURL;
-  //   });
-  //
-  //   // Within your widgets:
-  //   // Image.network(downloadURL);
-  // }
-
-
-  // Future _recuperarUrlImagem(StorageTaskSnapshot snapshot) async {
-  //
-  //   String url = await snapshot.ref.getDownloadURL();
-  //
-  //   setState(() {
-  //     _urlImagemRecuperada = url;
-  //   });
-  //
-  // }
-
-  // _recuperarDadosUsuario() async {
-  //
-  //   FirebaseAuth auth = FirebaseAuth.instance;
-  //   FirebaseUser usuarioLogado = await auth.currentUser();
-  //   _idUsuarioLogado = usuarioLogado.uid;
-  //
-  // }
+    setState(() {
+      _urlImagemRecuperada = downloadURL;
+      _subindoImagem = false;
+    });
+  }
 
   @override
   void initState() {
     super.initState();
-    // _recuperarDadosUsuario();
-    // _urlImagemRecuperada();
-    // _recuperarUrlImagem();
+    downloadURLIMGPerfil();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Configurações"),),
+      appBar: AppBar(title: const Text("Configurações"),),
       body: Container(
-        padding: EdgeInsets.all(16),
+        padding: const EdgeInsets.all(16),
         child: Center(
           child: SingleChildScrollView(
             child: Column(
               children: <Widget>[
                 _subindoImagem
-                  ? CircularProgressIndicator()
+                  ? const CircularProgressIndicator()
                   : Container(),
                 CircleAvatar(
                   radius: 100,
@@ -156,13 +98,13 @@ class _ConfiguracoesState extends State<Configuracoes> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
                     TextButton(
-                      child: Text("Câmera"),
+                      child: const Text("Câmera"),
                       onPressed: (){
                         _recuperarImagem("camera");
                       },
                     ),
                     TextButton(
-                      child: Text("Galeria"),
+                      child: const Text("Galeria"),
                       onPressed: (){
                         _recuperarImagem("galeria");
                       },
@@ -170,14 +112,14 @@ class _ConfiguracoesState extends State<Configuracoes> {
                   ],
                 ),
                 Padding(
-                  padding: EdgeInsets.only(bottom: 8),
+                  padding: const EdgeInsets.only(bottom: 8),
                   child: TextField(
                     controller: _controllerNome,
                     autofocus: true,
                     keyboardType: TextInputType.text,
-                    style: TextStyle(fontSize: 20),
+                    style: const TextStyle(fontSize: 20),
                     decoration: InputDecoration(
-                        contentPadding: EdgeInsets.fromLTRB(32, 16, 32, 16),
+                        contentPadding: const EdgeInsets.fromLTRB(32, 16, 32, 16),
                         hintText: "Nome",
                         filled: true,
                         fillColor: Colors.white,
@@ -186,16 +128,18 @@ class _ConfiguracoesState extends State<Configuracoes> {
                   ),
                 ),
                 Padding(
-                  padding: EdgeInsets.only(top: 16, bottom: 10),
-                  child: RaisedButton(
-                      child: Text(
+                  padding: const EdgeInsets.only(top: 16, bottom: 10),
+                  child: ElevatedButton(
+                      child: const Text(
                         "Salvar",
-                        style: TextStyle(color: Colors.white, fontSize: 20),
+                        style: const TextStyle(color: Colors.white, fontSize: 20),
                       ),
-                      color: Colors.green,
-                      padding: EdgeInsets.fromLTRB(32, 16, 32, 16),
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(32)),
+                      style: ElevatedButton.styleFrom(
+                        primary: Colors.green,
+                        padding: const EdgeInsets.fromLTRB(32, 16, 32, 16),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(32)),
+                      ),
                       onPressed: () {
 
                       }
