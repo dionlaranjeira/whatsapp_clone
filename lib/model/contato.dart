@@ -6,6 +6,16 @@ class Contato {
 
   Contato(this._nome, this._email, this._fotoPerfil);
 
+
+  Map toMap(){
+    Map<String, dynamic> map = {
+      "nome": this._nome,
+      "email": this._email,
+      "urlIMGPerfil": this._fotoPerfil,
+    };
+    return map;
+  }
+
   String get fotoPerfil => _fotoPerfil;
 
   set fotoPerfil(String value) {

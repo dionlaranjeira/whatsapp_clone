@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:whatsapp_clone/model/contato.dart';
-import 'package:whatsapp_clone/model/conversa.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:whatsapp_clone/model/usuario.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:whatsapp_clone/views/mensagem.dart';
 class Contatos extends StatefulWidget {
   const Contatos({Key? key}) : super(key: key);
 
@@ -14,7 +13,7 @@ class Contatos extends StatefulWidget {
 class _ContatosState extends State<Contatos> {
 
   List<Contato> contatos = [];
-  late String _urlImagemRecuperada = "https://firebasestorage.googleapis.com/v0/b/whatapp-flutter.appspot.com/o/app%2Fuser.png?alt=media&token=a288df1e-378a-46b7-98b0-260200d4103b";
+  String _urlImagemRecuperada = "https://firebasestorage.googleapis.com/v0/b/whatapp-flutter.appspot.com/o/app%2Fuser.png?alt=media&token=a288df1e-378a-46b7-98b0-260200d4103b";
 
   Future<List<Contato>> _recuperaContatos() async{
     var currentUser = await FirebaseAuth.instance.currentUser;
@@ -28,7 +27,6 @@ class _ContatosState extends State<Contatos> {
           Contato novoContato = Contato(doc["nome"], doc["email"], doc["urlIMGPerfil"]);
           contatos.add(novoContato);
         }
-
 
       });
     });
@@ -57,13 +55,12 @@ class _ContatosState extends State<Contatos> {
             case ConnectionState.waiting:
               return Center(
                 child: Column(
-                  children: <Widget>[
+                  children: const [
                     Text("Carregando contatos"),
                     CircularProgressIndicator()
                   ],
                 ),
               );
-              break;
             case ConnectionState.active:
             case ConnectionState.done:
               return
@@ -73,7 +70,11 @@ class _ContatosState extends State<Contatos> {
                     List<Contato>? listaItens = snapshot.data;
                     Contato contato = listaItens![indice];
                     return ListTile(
-                      contentPadding: EdgeInsets.fromLTRB(16, 8, 16, 8),
+                      onTap: (){
+                        Navigator.pushNamed(context, "/mensagem", arguments: contato.toMap());
+                      },
+
+                      contentPadding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
                       leading: CircleAvatar(
                           maxRadius: 30,
                           backgroundColor: Colors.grey,
@@ -82,11 +83,10 @@ class _ContatosState extends State<Contatos> {
                       title: Text(
                         contato.nome,
                         style:
-                        TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                        const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                       ),
                     );
                   });
-              break;
           }
         });
   }
