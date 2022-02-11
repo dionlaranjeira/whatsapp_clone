@@ -6,6 +6,8 @@ import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 import 'package:firebase_auth/firebase_auth.dart';
 import 'dart:io';
 
+import 'package:whatsapp_clone/util/colors.dart';
+
 class Configuracoes extends StatefulWidget {
   @override
   _ConfiguracoesState createState() => _ConfiguracoesState();
@@ -42,8 +44,6 @@ class _ConfiguracoesState extends State<Configuracoes> {
       }
     });
 
-
-
   }
 
   Future<void> _uploadImagem(String filePath) async {
@@ -61,8 +61,6 @@ class _ConfiguracoesState extends State<Configuracoes> {
       // e.g, e.code == 'canceled'
     }
   }
-
-
 
   Future<void> _obterDadosUsuario () async {
     var currentUser = await FirebaseAuth.instance.currentUser;
@@ -130,7 +128,7 @@ class _ConfiguracoesState extends State<Configuracoes> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Configurações"),),
+      appBar: AppBar(title: const Text("Configurações"),backgroundColor: Color(UtilColors.BG_GREEN),),
       body: Container(
         padding: const EdgeInsets.all(16),
         child: Center(
